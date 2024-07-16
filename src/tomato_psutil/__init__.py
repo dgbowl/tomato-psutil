@@ -48,7 +48,7 @@ class DriverInterface(ModelInterface):
         def _cpu_count(self):
             return psutil.cpu_count()
 
-        def attrs(self):
+        def attrs(self, **kwargs):
             return dict(
                 mem_total=Attr(type=int, units="bytes"),
                 mem_avail=Attr(type=int, units="bytes"),
@@ -76,7 +76,7 @@ class DriverInterface(ModelInterface):
         def set_attr(self, **kwargs):
             pass
 
-        def capabilities(self):
+        def capabilities(self, **kwargs):
             return {"mem_info", "cpu_info", "all_info"}
 
     def __init__(self, settings=None):
@@ -85,6 +85,9 @@ class DriverInterface(ModelInterface):
         self.devmap[key] = self.CreateDeviceManager(key)
 
     def dev_register(self, **kwargs) -> None:
+        pass
+
+    def dev_teardown(self, **kwargs) -> None:
         pass
 
     @override_key
@@ -132,6 +135,9 @@ if __name__ == "__main__":
     print(f"{interface.dev_register(**kwargs)=}")
     print(f"{interface.devmap=}")
     print(f"{interface.dev_get_attr(**kwargs, attr='mem_total')=}")
+
+    print(f"{interface.task_status(**kwargs)=}")
+    print(f"{interface.dev_status(**kwargs)=}")
 
     task = Task(
         component_tag="a1",
