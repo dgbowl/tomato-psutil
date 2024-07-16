@@ -1,6 +1,6 @@
 from typing import Union
 from functools import wraps
-from tomato.driverinterface_1_0 import DriverInterface, Attr
+from tomato.driverinterface_1_0 import ModelInterface, Attr
 from dgbowl_schemas.tomato.payload import Task
 from tomato.models import Reply
 import psutil
@@ -22,8 +22,8 @@ def override_key(func):
     return wrapper
 
 
-class DriverInterface(DriverInterface):
-    class DeviceInterface(DriverInterface.DeviceInterface):
+class DriverInterface(ModelInterface):
+    class DeviceManager(ModelInterface.DeviceManager):
         @property
         def _mem_total(self):
             return psutil.virtual_memory().total
@@ -54,7 +54,7 @@ class DriverInterface(DriverInterface):
                 mem_avail=Attr(type=int, units="bytes"),
                 mem_usage=Attr(type=float, status=True, units="percent"),
                 cpu_count=Attr(type=int),
-                cpu_freq=Attr(type=float, units="Hz"),
+                cpu_freq=Attr(type=float, units="MHz"),
                 cpu_usage=Attr(type=float, status=True, units="percent"),
             )
 
@@ -76,13 +76,13 @@ class DriverInterface(DriverInterface):
         def set_attr(self, **kwargs):
             pass
 
-        def tasks(self):
+        def capabilities(self):
             return {"mem_info", "cpu_info", "all_info"}
 
     def __init__(self, settings=None):
         super().__init__(settings)
         key = (None, None)
-        self.devmap[key] = self.CreateDeviceInterface(key)
+        self.devmap[key] = self.CreateDeviceManager(key)
 
     def dev_register(self, **kwargs) -> None:
         pass
@@ -120,7 +120,7 @@ class DriverInterface(DriverInterface):
         return super().task_stop(**kwargs)
 
     @override_key
-    def tasks(self, **kwargs):
+    def capabilities(self, **kwargs):
         return super().tasks(**kwargs)
 
 
