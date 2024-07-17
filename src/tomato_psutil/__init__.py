@@ -84,11 +84,20 @@ class DriverInterface(ModelInterface):
         key = (None, None)
         self.devmap[key] = self.CreateDeviceManager(key)
 
-    def dev_register(self, **kwargs) -> None:
-        pass
+    def dev_register(self, **kwargs) -> Reply:
+        return Reply(
+            success=True,
+            msg="psutil device always available",
+            data=self.devmap[(None, None)],
+        )
 
-    def dev_teardown(self, **kwargs) -> None:
-        pass
+    @override_key
+    def dev_teardown(self, **kwargs) -> Reply:
+        return super().dev_teardown(**kwargs)
+
+    @override_key
+    def dev_reset(self, **kwargs) -> Reply:
+        return super().dev_reset(**kwargs)
 
     @override_key
     def attrs(self, **kwargs) -> Union[Reply, None]:
