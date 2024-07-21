@@ -88,7 +88,7 @@ class DriverInterface(ModelInterface):
         return Reply(
             success=True,
             msg="psutil device always available",
-            data=(None, None),
+            data=self.devmap[(None, None)].capabilities(),
         )
 
     @override_key
