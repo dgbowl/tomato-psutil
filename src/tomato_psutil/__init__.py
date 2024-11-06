@@ -1,10 +1,8 @@
 from typing import Union
 from functools import wraps
-from tomato.driverinterface_1_0 import ModelInterface, Attr
-from dgbowl_schemas.tomato.payload import Task
+from tomato.driverinterface_1_0 import ModelInterface, Attr, Task
 from tomato.models import Reply
 import psutil
-import time
 from datetime import datetime
 import logging
 
@@ -134,42 +132,3 @@ class DriverInterface(ModelInterface):
     @override_key
     def capabilities(self, **kwargs):
         return super().tasks(**kwargs)
-
-
-if __name__ == "__main__":
-    interface = DriverInterface()
-    kwargs = dict(address="a", channel=1)
-    print(f"{interface=}")
-    print(f"{interface.attrs()=}")
-    print(f"{interface.dev_register(**kwargs)=}")
-    print(f"{interface.devmap=}")
-    print(f"{interface.dev_get_attr(**kwargs, attr='mem_total')=}")
-
-    print(f"{interface.task_status(**kwargs)=}")
-    print(f"{interface.dev_status(**kwargs)=}")
-
-    task = Task(
-        component_tag="a1",
-        max_duration=1.0,
-        sampling_interval=0.2,
-        technique_name="mem_info",
-    )
-    print(f"{interface.task_start(**kwargs, task=task)=}")
-    print(f"{interface.dev_status(**kwargs)=}")
-    for i in range(0, 2):
-        time.sleep(1)
-        print(f"{interface.dev_get_attr(**kwargs, attr='mem_usage')=}")
-        print(f"{interface.task_data(**kwargs).data=}")
-
-    task = Task(
-        component_tag="a1",
-        max_duration=5.0,
-        sampling_interval=2.0,
-        technique_name="cpu_info",
-    )
-    print(f"{interface.task_start(**kwargs, task=task)=}")
-    print(f"{interface.dev_status(**kwargs)=}")
-    for i in range(0, 5):
-        time.sleep(1)
-        print(f"{interface.dev_get_attr(**kwargs, attr='mem_usage')=}")
-    print(f"{interface.task_data(**kwargs).data['cpu_freq']=}")
