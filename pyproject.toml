@@ -14,15 +14,14 @@ maintainers = [
 description = "tomato driver interface to the psutil library"
 readme = "README.md"
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
     "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Operating System :: OS Independent",
 ]
-requires-python = ">= 3.9"
+requires-python = ">= 3.10"
 dependencies = [
     "psutil >= 5.9",
     "tomato >= 1.0rc1",
