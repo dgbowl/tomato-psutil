@@ -1,5 +1,6 @@
 import psutil
 import logging
+import xarray as xr
 
 from datetime import datetime
 from tomato.driverinterface_2_1 import Attr, ModelInterface, ModelDevice, Task
@@ -15,6 +16,9 @@ class DriverInterface(ModelInterface):
         return Device(self, key, **kwargs)
 
 class Device(ModelDevice):
+
+    task: Task
+
     @property
     def _mem_total(self):
         return psutil.virtual_memory().total
@@ -42,6 +46,7 @@ class Device(ModelDevice):
     def __init__(self, driver, key, **kwargs):
         super().__init__(driver, key, **kwargs)
         self._cpu_usage
+        self.task = None
 
     def attrs(self, **kwargs):
         return dict(
@@ -53,16 +58,25 @@ class Device(ModelDevice):
             cpu_usage=Attr(type=float, status=True, units="percent"),
         )
 
-    def do_task(self, task: Task, **kwargs) -> None:
-        self.data["uts"].append(datetime.now().timestamp())
-        if task.technique_name in {"mem_info", "all_info"}:
-            self.data["mem_total"].append(self._mem_total)
-            self.data["mem_avail"].append(self._mem_avail)
-            self.data["mem_usage"].append(self._mem_usage)
-        if task.technique_name in {"cpu_info", "all_info"}:
-            self.data["cpu_count"].append(self._cpu_count)
-            self.data["cpu_freq"].append(self._cpu_freq)
-            self.data["cpu_usage"].append(self._cpu_usage)
+    def prepare_task(self, task: Task, **kwargs: dict) -> None:
+        self.task = task
+
+    def do_measure(self, **kwargs) -> None:
+        data_vars = {}
+        if self.task is None or self.task.technique_name in {"mem_info", "all_info"}:
+            data_vars["mem_total"] = (["uts"], [self._mem_total])
+            data_vars["mem_avail"] = (["uts"], [self._mem_avail])
+            data_vars["mem_usage"] = (["uts"], [self._mem_usage])
+        if self.task is None or self.task.technique_name in {"cpu_info", "all_info"}:
+            data_vars["cpu_count"] = (["uts"], [self._cpu_count])
+            data_vars["cpu_freq"] = (["uts"], [self._cpu_freq])
+            data_vars["cpu_usage"] = (["uts"], [self._cpu_usage])
+
+        uts = datetime.now().timestamp()
+        self.last_data = xr.Dataset(
+            data_vars=data_vars,
+            coords={"uts": (["uts"], [uts])},
+        )
 
     def get_attr(self, attr: str, **kwargs):
         if hasattr(self, f"_{attr}"):
