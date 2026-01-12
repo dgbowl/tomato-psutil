@@ -64,13 +64,13 @@ class Device(ModelDevice):
     def do_measure(self, **kwargs) -> None:
         data_vars = {}
         if self.task is None or self.task.technique_name in {"mem_info", "all_info"}:
-            data_vars["mem_total"] = (["uts"], [self._mem_total])
-            data_vars["mem_avail"] = (["uts"], [self._mem_avail])
-            data_vars["mem_usage"] = (["uts"], [self._mem_usage])
+            data_vars["mem_total"] = (["uts"], [self._mem_total], {"units": "bytes"})
+            data_vars["mem_avail"] = (["uts"], [self._mem_avail], {"units": "bytes"})
+            data_vars["mem_usage"] = (["uts"], [self._mem_usage], {"units": "percent"})
         if self.task is None or self.task.technique_name in {"cpu_info", "all_info"}:
             data_vars["cpu_count"] = (["uts"], [self._cpu_count])
-            data_vars["cpu_freq"] = (["uts"], [self._cpu_freq])
-            data_vars["cpu_usage"] = (["uts"], [self._cpu_usage])
+            data_vars["cpu_freq"] = (["uts"], [self._cpu_freq], {"units": "MHz"})
+            data_vars["cpu_usage"] = (["uts"], [self._cpu_usage], {"units": "percent"})
 
         uts = datetime.now().timestamp()
         self.last_data = xr.Dataset(
