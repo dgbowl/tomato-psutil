@@ -24,7 +24,7 @@ classifiers = [
 requires-python = ">= 3.10"
 dependencies = [
     "psutil >= 5.9",
-    "tomato >= 1.0rc1",
+    "tomato >= 2.1",
 ]
 
 [project.optional-dependencies]
