@@ -15,8 +15,8 @@ class DriverInterface(ModelInterface):
     def DeviceFactory(self, key, **kwargs):
         return Device(self, key, **kwargs)
 
-class Device(ModelDevice):
 
+class Device(ModelDevice):
     task: Task
 
     @property
