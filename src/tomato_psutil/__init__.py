@@ -1,24 +1,30 @@
-import psutil
 import logging
+from datetime import UTC, datetime
+
+import psutil
 import xarray as xr
-
-from datetime import datetime
-from tomato.driverinterface_2_1 import Attr, ModelInterface, ModelDevice, Task
-
+from tomato.driverinterface_3_0 import (
+    Attr,
+    ModelComponent,
+    ModelInterface,
+    Settings,
+    Task,
+)
+from tomato.driverinterface_3_0.decorators import coerce_val
+from tomato.driverinterface_3_0.types import Val
 
 logger = logging.getLogger(__name__)
 
 
+class Settings(Settings):
+    idle_measurement_interval: int | None = 10
+
+
 class DriverInterface(ModelInterface):
-    idle_measurement_interval = 10
-
-    def DeviceFactory(self, key, **kwargs):
-        return Device(self, key, **kwargs)
+    pass
 
 
-class Device(ModelDevice):
-    task: Task
-
+class Component(ModelComponent):
     @property
     def _mem_total(self):
         return psutil.virtual_memory().total
@@ -45,18 +51,17 @@ class Device(ModelDevice):
 
     def __init__(self, driver, key, **kwargs):
         super().__init__(driver, key, **kwargs)
-        self._cpu_usage
-        self.task = None
+        _ = self._cpu_usage
 
     def attrs(self, **kwargs):
-        return dict(
-            mem_total=Attr(type=int, units="bytes"),
-            mem_avail=Attr(type=int, units="bytes"),
-            mem_usage=Attr(type=float, status=True, units="percent"),
-            cpu_count=Attr(type=int),
-            cpu_freq=Attr(type=float, units="MHz"),
-            cpu_usage=Attr(type=float, status=True, units="percent"),
-        )
+        return {
+            "mem_total": Attr(type=int, units="bytes"),
+            "mem_avail": Attr(type=int, units="bytes"),
+            "mem_usage": Attr(type=float, status=True, units="percent"),
+            "cpu_count": Attr(type=int),
+            "cpu_freq": Attr(type=float, units="MHz"),
+            "cpu_usage": Attr(type=float, status=True, units="percent"),
+        }
 
     def prepare_task(self, task: Task, **kwargs: dict) -> None:
         self.task = task
@@ -72,7 +77,7 @@ class Device(ModelDevice):
             data_vars["cpu_freq"] = (["uts"], [self._cpu_freq], {"units": "MHz"})
             data_vars["cpu_usage"] = (["uts"], [self._cpu_usage], {"units": "percent"})
 
-        uts = datetime.now().timestamp()
+        uts = datetime.now(UTC).timestamp()
         self.last_data = xr.Dataset(
             data_vars=data_vars,
             coords={"uts": (["uts"], [uts])},
@@ -82,8 +87,12 @@ class Device(ModelDevice):
         if hasattr(self, f"_{attr}"):
             return getattr(self, f"_{attr}")
 
-    def set_attr(self, **kwargs):
+    @coerce_val
+    def set_attr(self, attr: str, val: Val, **kwargs):
         pass
 
     def capabilities(self, **kwargs):
         return {"mem_info", "cpu_info", "all_info"}
+
+    def quit(self, **kwargs):
+        pass
