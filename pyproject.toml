@@ -16,9 +16,10 @@ readme = "README.md"
 classifiers = [
     "Development Status :: 4 - Beta",
     "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Operating System :: OS Independent",
 ]
 requires-python = ">= 3.11"
@@ -37,7 +38,7 @@ docs = [
 ]
 
 [project.urls]
-Documentation = "https://dgbowl.github.io/tomato-psutil/master"
+Documentation = "https://dgbowl.github.io/tomato-psutil/main"
 Issues = "https://github.com/dgbowl/tomato-psutil/issues"
 Repository = "https://github.com/dgbowl/tomato-psutil/"
 
