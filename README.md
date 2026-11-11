@@ -3,6 +3,10 @@
 
 This driver illustrates how a device driver can be implemented for devices which have no components. The driver is developed by the [ConCat lab at TU Berlin](https://tu.berlin/en/concat).
 
+## Configuration
+- `address`: `None`.
+- `channel`: `None`.
+
 ## Supported functions
 
 ### Capabilities
