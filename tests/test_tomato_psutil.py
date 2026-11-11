@@ -1,15 +1,17 @@
 import time
 
+import pytest
+
 from tomato_psutil import DriverInterface, Task
 
-kwargs = {"address": None, "channel": None}
+KWARGS = {"address": None, "channel": None}
 NAME = "psutil"
 
 
 def test_create_teardown_device():
     interface = DriverInterface()
     print(f"{interface=}")
-    ret = interface.cmp_register(name=NAME, **kwargs)
+    ret = interface.cmp_register(name=NAME, **KWARGS)
     assert ret.success
     print(f"{interface.devmap=}")
     assert NAME in interface.devmap
@@ -18,9 +20,22 @@ def test_create_teardown_device():
     assert NAME not in interface.devmap
 
 
+@pytest.mark.parametrize(
+    "kwargs, name",
+    [
+        ({"address": None, "channel": "1"}, "psutil::1"),
+        ({"address": "a", "channel": None}, "psutil:a"),
+    ],
+)
+def test_address_channel_none(kwargs, name):
+    interface = DriverInterface()
+    with pytest.raises(ValueError):
+        interface.cmp_register(name=name, **kwargs)
+
+
 def test_get_attr():
     interface = DriverInterface()
-    ret = interface.cmp_register(name=NAME, **kwargs)
+    ret = interface.cmp_register(name=NAME, **KWARGS)
     ret = interface.cmp_attrs(name=NAME)
     assert ret.success
     assert "mem_total" in ret.data
@@ -31,9 +46,9 @@ def test_get_attr():
 
 def test_task_random():
     interface = DriverInterface()
-    interface.cmp_register(name=NAME, **kwargs)
+    interface.cmp_register(name=NAME, **KWARGS)
     task = Task(
-        component_role="a1",
+        component_role="",
         max_duration=1.0,
         sampling_interval=0.1,
         technique_name="mem_info",
