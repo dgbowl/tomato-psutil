@@ -21,7 +21,12 @@ class Settings(Settings):
 
 
 class DriverInterface(ModelInterface):
-    pass
+    def ComponentFactory(self, name, **kwargs):
+        if kwargs.get("address", None) is not None:
+            raise ValueError("address must be None")
+        if kwargs.get("channel", None) is not None:
+            raise ValueError("channel must be None")
+        return Component(self, name, **kwargs)
 
 
 class Component(ModelComponent):
@@ -49,8 +54,8 @@ class Component(ModelComponent):
     def _cpu_count(self):
         return psutil.cpu_count()
 
-    def __init__(self, driver, key, **kwargs):
-        super().__init__(driver, key, **kwargs)
+    def __init__(self, driver, name, **kwargs):
+        super().__init__(driver, name, **kwargs)
         _ = self._cpu_usage
 
     def attrs(self, **kwargs):
